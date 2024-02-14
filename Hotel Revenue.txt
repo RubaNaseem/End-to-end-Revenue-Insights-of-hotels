@@ -1,0 +1,274 @@
+create database db;
+create warehouse ruba;
+use database db;
+CREATE TABLE hotel (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    host_id INTEGER,
+    host_name TEXT,
+    neighbourhood_group TEXT,
+    neighbourhood TEXT,
+    latitude REAL,
+    longitude REAL,
+    room_type TEXT,
+    price INTEGER,
+    minimum_nights INTEGER,
+    number_of_reviews INTEGER,
+    last_review TEXT,
+    reviews_per_month REAL,
+    calculated_host_listings_count INTEGER,
+    availability_365 INTEGER,
+    number_of_reviews_ltm INTEGER,
+    license TEXT
+);
+
+select * from hotel;
+
+SELECT *
+FROM hotel
+WHERE license IS NOT NULL;
+
+ALTER TABLE hotel
+DROP COLUMN license;
+
+DESCRIBE TABLE hotel;
+
+SELECT COUNT(*) AS null_count
+FROM hotel
+WHERE last_review IS NULL;
+
+SELECT COUNT(*) AS null_count
+FROM hotel
+WHERE reviews_per_month IS NULL;
+
+UPDATE hotel
+SET  reviews_per_month = (SELECT MODE( reviews_per_month) FROM hotel)
+
+SELECT COUNT(*) AS null_count
+FROM hotel
+WHERE calculated_host_listings_count IS NULL;
+
+SELECT COUNT(*) AS null_count
+FROM hotel
+WHERE number_of_reviews_ltm IS NULL;
+
+SELECT id, COUNT(*) as occurrence_count
+FROM hotel
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+SELECT name FROM hotel;
+
+UPDATE hotel
+SET name = REGEXP_REPLACE(name, '[^a-zA-Z0-9 ]', '', 1, 0);
+
+SELECT neighbourhood_group, COUNT(*) as occurrence_count
+FROM hotel
+GROUP BY neighbourhood_group
+HAVING COUNT(*) > 1;
+
+SELECT name AS manhattan_hotel
+FROM hotel
+WHERE neighbourhood_group= 'Manhattan';
+
+SELECT name AS brooklyn_hotel
+FROM hotel
+WHERE neighbourhood_group= 'Brooklyn';
+
+SELECT name AS queens_hotel
+FROM hotel
+WHERE neighbourhood_group= 'Queens';
+
+SELECT name AS bronx_hotel
+FROM hotel
+WHERE neighbourhood_group= 'Bronx';
+
+SELECT name AS staten_hotel
+FROM hotel
+WHERE neighbourhood_group= 'Staten Island';
+
+SELECT name, neighbourhood_group , number_of_reviews
+FROM hotel 
+ORDER BY number_of_reviews DESC
+LIMIT 10;
+
+SELECT DISTINCT room_type
+FROM hotel;
+
+SELECT room_type, AVG(price) AS average_price
+FROM hotel
+GROUP BY room_type;
+
+SELECT room_type, MIN(price) AS min_price,
+MAX(price) AS max_prrice
+FROM hotel
+GROUP BY room_type;
+
+DELETE FROM hotel
+WHERE price = 0;
+
+SELECT * FROM hotel WHERE price=10;
+
+DELETE FROM hotel
+WHERE price = 10;
+
+SELECT * FROM hotel WHERE price=15;
+
+DELETE FROM hotel
+WHERE price = 15;
+
+SELECT *
+FROM hotel
+WHERE price > 0
+ORDER BY price
+LIMIT 10;
+
+SELECT * FROM hotel WHERE price<40;
+
+DELETE FROM hotel
+WHERE price<40;
+
+SELECT neighbourhood_group,name,
+COUNT(*) AS availability
+FROM hotel
+GROUP BY neighbourhood_group,name;
+
+SELECT AVG(availability_365) FROM hotel;
+
+SELECT name,neighbourhood_group, availability_365
+FROM hotel
+WHERE availability_365=365;
+
+
+SELECT name, availability_365 FROM hotel WHERE NEIGHBOURHOOD_GROUP='Queens' ORDER BY
+    number_of_reviews DESC
+LIMIT 10;
+
+SELECT *
+FROM hotel
+WHERE name IS NULL;
+
+SELECT *
+FROM hotel
+WHERE neighbourhood IS NULL;
+
+SELECT *
+FROM hotel
+WHERE neighbourhood_group IS NULL;
+
+SELECT *
+FROM hotel
+WHERE longitude IS NULL;
+
+SELECT *
+FROM hotel
+WHERE room_type IS NULL;
+
+SELECT *
+FROM hotel
+WHERE price IS NULL;
+
+SELECT *
+FROM hotel
+WHERE minimum_nights IS NULL;
+
+SELECT *
+FROM hotel
+WHERE availability_365 IS NULL;
+
+SELECT *
+FROM hotel
+WHERE last_review IS NULL;
+
+ALTER TABLE hotel
+DROP COLUMN host_id, host_name, calculated_host_listings_count;
+
+
+ALTER TABLE hotel
+ADD last_review_datetime DATETIME;
+
+UPDATE hotel
+SET last_review_datetime = CAST(last_review AS DATETIME);
+
+ALTER TABLE hotel
+DROP COLUMN last_review;
+
+select * from hotel;
+
+ALTER TABLE hotel
+ADD COLUMN year_column INT;
+
+ALTER TABLE hotel
+ADD COLUMN month_column INT;
+
+ALTER TABLE hotel
+ADD COLUMN day_column INT;
+
+UPDATE hotel
+SET 
+  year_column = YEAR(last_review_datetime);
+UPDATE hotel
+SET   
+  month_column = MONTH(last_review_datetime);
+UPDATE hotel
+SET 
+day_column = DAY(last_review_datetime);
+
+ALTER TABLE hotel
+DROP COLUMN last_review_datetime;
+
+SELECT
+    id,name,
+    SUM(number_of_reviews) AS yearly_revenue,
+    COUNT(number_of_reviews) AS total_reviews
+FROM
+    hotel
+WHERE
+    YEAR_COLUMN=2023
+GROUP BY
+  id,name
+ORDER BY
+    total_reviews DESC
+LIMIT 10;
+
+SELECT
+name,
+room_type,
+price
+FROM
+   hotel
+WHERE
+    MONTH_COLUMN = 2
+    AND price=1500;
+
+SELECT
+    room_type,
+    neighbourhood_group,
+    AVG(price) AS average_price
+FROM hotel GROUP BY room_type, neighbourhood_group;
+
+ALTER TABLE hotel drop column number_of_reviews_ltm;
+
+SELECT SUM(availability_365) AS total_available_rooms
+FROM hotel;
+
+SELECT room_type, SUM(availability_365), AVG(price)
+FROM hotel
+GROUP BY room_type;
+
+SELECT * FROM hotel WHERE longitude IS NULL;
+
+SELECT * FROM hotel WHERE latitude IS NULL;
+
+SELECT * FROM hotel;
+
+SELECT *
+FROM hotel
+WHERE minimum_nights = 1
+AND price = (SELECT MAX(price) FROM hotel WHERE minimum_nights = 1);
+
+DELETE FROM hotel
+WHERE minimum_nights = 1
+AND price = (SELECT MAX(price) FROM hotel WHERE minimum_nights = 1);
+
+
